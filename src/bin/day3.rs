@@ -1,5 +1,3 @@
-use std::ops::Deref;
-
 pub fn main() -> Result<(), Box<dyn std::error::Error>> {
     let contents = std::fs::read_to_string("inputs/input3.txt")?;
 
@@ -11,7 +9,7 @@ pub fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let part2 = calc_part2(&mut inputs);
     println!("part2 {}", part2);
-    // assert_eq!(part2, 2044620088);
+    assert_eq!(part2, 4375225);
     Ok(())
 }
 
@@ -61,8 +59,10 @@ fn calc_part2(inputs: &mut [Vec<char>]) -> isize {
     let o2: String = String::from_iter(calc_oxygen_rating(inputs));
     let co2: String = String::from_iter(calc_co2_rating(inputs));
 
-    isize::from_str_radix(o2.as_str(), 2).unwrap() *
-        isize::from_str_radix(co2.as_str(), 2).unwrap()
+    let o2 = isize::from_str_radix(o2.as_str(), 2).unwrap();
+    let co2 = isize::from_str_radix(co2.as_str(), 2).unwrap();
+
+    o2 * co2
 }
 
 fn calc_oxygen_rating(inputs: &[Vec<char>]) -> &Vec<char> {
@@ -70,15 +70,14 @@ fn calc_oxygen_rating(inputs: &[Vec<char>]) -> &Vec<char> {
     for i in 0..inputs[0].len() {
         if inputs.len() > 1 {
             let sum = sum_column(&inputs, i) as f32;
-            let len = inputs[0].len() as f32;
+            let len = inputs.len() as f32;
             if sum / len >= 0.5 {
-                inputs = part2_filter(&inputs, i,'1');
+                part2_filter(&mut inputs, i, '1');
             } else {
-                inputs = part2_filter(&inputs, i,'0');
+                part2_filter(&mut inputs, i, '0');
             }
         };
     };
-    println!("Len of oxygen result = {}", inputs.len());
     inputs.first().unwrap()
 }
 
@@ -87,20 +86,30 @@ fn calc_co2_rating(inputs: &[Vec<char>]) -> &Vec<char> {
     for i in 0..inputs[0].len() {
         if inputs.len() > 1 {
             let sum = sum_column(&inputs, i) as f32;
-            let len = inputs[0].len() as f32;
+            let len = inputs.len() as f32;
             if sum / len < 0.5 {
-                inputs = part2_filter(&inputs, i, '1');
+                part2_filter(&mut inputs, i, '1');
             } else {
-                inputs = part2_filter(&inputs, i, '0');
+                part2_filter(&mut inputs, i, '0');
             }
         };
     };
-    println!("Len of co2 result = {}", inputs.len());
     inputs.first().unwrap()
 }
 
-fn part2_filter<'a>(inputs: &'a [&Vec<char>], column: usize, compare_char: char) -> Vec<&'a Vec<char>> {
-   inputs.iter().filter(|x| x[column] == compare_char).map(Deref::deref).collect()
+fn part2_filter(inputs: &mut Vec<&Vec<char>>, column: usize, compare_char: char) {
+    let mut to_remove: Vec<usize> = vec![];
+    for i in 0..inputs.len() {
+        if inputs[i][column] != compare_char {
+            to_remove.push(i);
+        }
+    }
+    to_remove
+        .into_iter()
+        .rev() // so the indexes to remove stay at the same place
+        .for_each(|i| {
+            inputs.remove(i);
+        });
 }
 
 #[test]
