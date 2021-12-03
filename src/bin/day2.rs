@@ -23,34 +23,34 @@ fn parse_input(contents: &str) -> Vec<(&str, u32)> {
         }).collect()
 }
 
-fn calc_part1(inputs: &Vec<(&str, u32)>) -> u32 {
+fn calc_part1(inputs: &[(&str, u32)]) -> u32 {
     let res = inputs.iter().fold((0, 0), |mut acc, curr| {
         // acc 0 = forward pos
         // acc 1 = depth
         match curr.0 {
-            "forward" => acc.0 = acc.0 + curr.1,
-            "up" => acc.1 = acc.1 - curr.1,
-            "down" => acc.1 = acc.1 + curr.1,
-            _ => ()
+            "forward" => acc.0 += curr.1,
+            "up" => acc.1 -= curr.1,
+            "down" => acc.1 += curr.1,
+            _ => unreachable!()
         }
         acc
     });
     res.0 * res.1
 }
 
-fn calc_part2(inputs: &Vec<(&str, u32)>) -> u32 {
+fn calc_part2(inputs: &[(&str, u32)]) -> u32 {
     let res = inputs.iter().fold((0, 0, 0), |mut acc, curr| {
         // acc 0 = forward pos
         // acc 1 = depth
         // acc 2 = aim
         match curr.0 {
             "forward" => {
-                acc.0 = acc.0 + curr.1;
-                acc.1 = acc.1 + (acc.2 * curr.1)
+                acc.0 += curr.1;
+                acc.1 += acc.2 * curr.1
             }
-            "up" => acc.2 = acc.2 - curr.1,
-            "down" => acc.2 = acc.2 + curr.1,
-            _ => ()
+            "up" => acc.2 -= curr.1,
+            "down" => acc.2 += curr.1,
+            _ => unreachable!()
         }
         acc
     });
