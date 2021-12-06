@@ -25,7 +25,7 @@ struct BingoCard {
 }
 
 fn has_bingo(card: &BingoCard, matches: &[u32]) -> bool {
-    let has_line_bingo = card.lines.iter().filter(|line| line_is_bingo(matches, *line)).collect::<Vec<&BingoCardLine>>().len() > 0;
+    let has_line_bingo = card.lines.iter().any(|line| line_is_bingo(matches, line));
     let has_col_bingo = card.lines
         .iter()
         .fold(vec![0, 0, 0, 0, 0], |acc, line|
@@ -41,7 +41,7 @@ fn has_bingo(card: &BingoCard, matches: &[u32]) -> bool {
 }
 
 fn line_is_bingo(matches: &[u32], line: &BingoCardLine) -> bool {
-    line.line.iter().filter(|x| !matches.contains(x)).collect::<Vec<&u32>>().len() == 0
+    line.line.iter().all(|x| matches.contains(x))
 }
 
 // returns list of bingo numbers and list of bingo cards
@@ -49,7 +49,7 @@ fn parse_input(contents: &str) -> (Vec<u32>, Vec<BingoCard>) {
     let mut lines = contents.lines();
     let number_line: Vec<u32> = lines.next().unwrap().split(",").map(|x| x.parse::<u32>().unwrap()).collect();
     lines.next(); // skip first empty line
-    let mut cards = lines
+    let cards = lines
         .fold((0, vec!(BingoCard { lines: vec!() })),
               |mut acc, curr| {
                   if curr.is_empty() {
