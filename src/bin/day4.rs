@@ -3,11 +3,11 @@ pub fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let parsed = parse_input(&contents);
 
-    let part1 = calc_part1(parsed);
+    let part1 = calc_part1(&parsed);
     println!("part1 {}", part1);
     assert_eq!(part1, 2745);
 
-    let part2 = calc_part2(parse_input(&contents));
+    let part2 = calc_part2(&parsed);
     println!("part2 {}", part2);
     assert_eq!(part2, 6594);
 
@@ -82,7 +82,7 @@ fn get_card_score(card: &BingoCard, numbers: &[u32]) -> u32 {
     })
 }
 
-fn calc_part1(inputs: (Vec<u32>, Vec<BingoCard>)) -> u32 {
+fn calc_part1(inputs: &(Vec<u32>, Vec<BingoCard>)) -> u32 {
 
     for i in 0..inputs.0.len() {
         let numbers = &inputs.0[0..i];
@@ -93,7 +93,7 @@ fn calc_part1(inputs: (Vec<u32>, Vec<BingoCard>)) -> u32 {
     }
     0
 }
-fn calc_part2(inputs: (Vec<u32>, Vec<BingoCard>)) -> u32 {
+fn calc_part2(inputs: &(Vec<u32>, Vec<BingoCard>)) -> u32 {
 
     for i in 0..inputs.0.len() {
         let numbers = &inputs.0[0..i];
@@ -135,7 +135,7 @@ fn test() {
     let vec = parse_input(test);
 
     // dbg!(vec);
-    assert_eq!(calc_part1(vec), 4512)
+    assert_eq!(calc_part1(&vec), 4512)
 }
 
 
