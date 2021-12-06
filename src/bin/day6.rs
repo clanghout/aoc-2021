@@ -44,7 +44,6 @@ fn calc_part1(inputs: &Vec<u8>) -> usize {
     (0..80).for_each(|_| {
         let new_fish = fish_cycle(&mut fishes);
         (0..new_fish).for_each(|_| fishes.push(8));
-        // dbg!(&fishes);
     });
     fishes.iter().count()
 }
@@ -55,14 +54,18 @@ fn fish_cycle2(fishes: &mut Vec<u64>) {
     fishes[6] += new_fishes;
 }
 
-fn calc_part2(inputs: &Vec<u8>) -> u64 {
-    let fishes = inputs;
-    let mut fish_map = fishes.iter().fold(vec![0 as u64, 0, 0, 0, 0, 0, 0, 0, 0], |mut acc, curr| {
+fn fish_cycle2_alternative(fishes: &mut [u64], index: usize) {
+    // add the fishes of day 0 to the new day6 fishes.
+    // the day 8 fishes are automatically the day 0 fishes of the previous day
+    fishes[(index + 7) % fishes.len()] += fishes[index % fishes.len()];
+}
+
+fn calc_part2(inputs: &[u8]) -> u64 {
+    let mut fish_map = inputs.iter().fold([0 as u64; 9], |mut acc, curr| {
         acc[*curr as usize] += 1;
         acc
     });
-    (0..256).for_each(|_| fish_cycle2(&mut fish_map));
-
+    (0..256).for_each(|i| fish_cycle2_alternative(&mut fish_map, i));
     fish_map.iter().sum()
 }
 
