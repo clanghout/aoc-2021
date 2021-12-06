@@ -12,6 +12,7 @@ Cargo.lock
 # IntelliJ
 .idea/
 *.iml
+src/bin/dayX.rs
 
 # AoC inputs
 inputs/
