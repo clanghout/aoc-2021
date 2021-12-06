@@ -11,7 +11,7 @@ pub fn main() -> Result<(), Box<dyn std::error::Error>> {
     //
     let part2 = calc_part2(&parsed);
     println!("part2 {}", part2);
-    // assert_eq!(part2, 000);
+    assert_eq!(part2, 21373);
 
     Ok(())
 }
@@ -64,7 +64,7 @@ fn is_x_line(c1: &Coord, c2: &Coord) -> bool {
     c1.1 == c2.1
 }
 
-// check if
+// check if one of the points is left up of the other
 fn is_left_up(c1: &Coord, c2: &Coord) -> bool {
     c1.1 < c2.1 && c1.0 < c2.0 ||
         c1.1 > c2.1 && c1.0 > c2.0
