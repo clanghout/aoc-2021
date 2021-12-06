@@ -3,13 +3,13 @@ pub fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let parsed = parse_input(&contents);
 
-    // let part1 = calc_part1(&parsed);
-    // println!("part1 {}", part1);
-    // assert_eq!(part1, 000);
+    let part1 = calc_part1(parsed);
+    println!("part1 {}", part1);
+    assert_eq!(part1, 2745);
 
-    // let part2 = calc_part2(&parsed);
-    // println!("part2 {}", part2);
-    // assert_eq!(part2, 000);
+    let part2 = calc_part2(parse_input(&contents));
+    println!("part2 {}", part2);
+    assert_eq!(part2, 6594);
 
     Ok(())
 }
@@ -57,7 +57,7 @@ fn parse_input(contents: &str) -> (Vec<u32>, Vec<BingoCard>) {
                       (acc.0 + 1, acc.1)
                   } else {
                       if !curr.is_empty() {
-                          dbg!(curr);
+                          // dbg!(curr);
                           let bingo_line: BingoCardLine = BingoCardLine {
                               line: curr
                                   .split(" ")
@@ -83,22 +83,32 @@ fn get_card_score(card: &BingoCard, numbers: &[u32]) -> u32 {
 }
 
 fn calc_part1(inputs: (Vec<u32>, Vec<BingoCard>)) -> u32 {
-    let iter = inputs.1.into_iter();
+
     for i in 0..inputs.0.len() {
         let numbers = &inputs.0[0..i];
-        let card: Option<BingoCard> = iter.fold(None, |acc, card| if has_bingo(&card, &numbers) { Some(card) } else { None });
-        match card {
-            Some(card) => { return get_card_score(&card, &numbers) * numbers[i]; }
-            None => ()
+        let cards: Vec<&BingoCard> = inputs.1.iter().filter(| card|  has_bingo(&card, &numbers)).collect();
+        if cards.len() > 0 {
+            return get_card_score(cards.first().unwrap(), &numbers) * numbers[i-1];
         }
     }
     0
 }
+fn calc_part2(inputs: (Vec<u32>, Vec<BingoCard>)) -> u32 {
 
-
-// fn calc_part2(inputs: ) -> u32 {
-//     0
-// }
+    for i in 0..inputs.0.len() {
+        let numbers = &inputs.0[0..i];
+        let cards: Vec<&BingoCard> = inputs.1.iter().filter(| card|  !has_bingo(&card, &numbers)).collect();
+        if cards.len() == 1 {
+            let card1 = cards.first().unwrap();
+            let mut j = i;
+            while !has_bingo(card1, &inputs.0[0..j]){
+                j+=1;
+            }
+            return get_card_score(card1, &inputs.0[0..j]) * &inputs.0[j-1];
+        }
+    }
+    0
+}
 
 #[test]
 fn test() {
@@ -124,8 +134,8 @@ fn test() {
 
     let vec = parse_input(test);
 
-    dbg!(vec);
-    // assert_eq!(calc_part1(&vec), 4512)
+    // dbg!(vec);
+    assert_eq!(calc_part1(vec), 4512)
 }
 
 
