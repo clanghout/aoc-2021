@@ -4,7 +4,7 @@ pub fn main() -> Result<(), Box<dyn std::error::Error>> {
     let parsed = parse_input(&contents);
 
     // highest crab pos
-    let x = parsed.iter().fold(0, |acc, curr| if acc > *curr { acc } else { *curr }) + 1;
+    let x = parsed.iter().max().unwrap() + 1;
     // convert crab positions to array where index is the crab location and value is the amount of crabs there
     let crabs = parsed.iter().fold(vec![0 as usize; x], |mut acc, curr| {
         acc[*curr] += 1;
@@ -34,15 +34,12 @@ fn parse_input(contents: &str) -> Vec<usize> {
 }
 
 fn calc_part1(crabs: &[usize]) -> usize {
-    crabs.iter().enumerate().fold(usize::MAX, |acc, (i, _)| {
-        let cost_pos_1 = crabs
+    crabs.iter().enumerate().map(|(i, _)| {
+        crabs
             .iter()
             .enumerate()
-            .fold(0, |acc, (j, crab2)| acc + crab2 * (i.max(j) - i.min(j)));
-        if acc < cost_pos_1 { acc } else {
-            cost_pos_1
-        }
-    })
+            .fold(0, |acc, (j, crab2)| acc + crab2 * (i.max(j) - i.min(j)))
+    }).min().unwrap()
 }
 
 fn calc_part2(crabs: &[usize]) -> usize {
