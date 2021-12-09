@@ -19,14 +19,14 @@ pub fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 fn parse_input(contents: &str) -> Vec<Vec<u32>> {
     contents
+        .trim()
         .lines()
-        .filter(|x| !x.is_empty())
         .map(|x| {
             x.chars().map(|c| c.to_digit(10).unwrap()).collect()
         }).collect()
 }
 
-fn as_neighbourhood(input: &Vec<Vec<u32>>) -> Vec<Vec<(u32, Vec<u32>)>> {
+fn as_neighbourhood(input: &[Vec<u32>]) -> Vec<Vec<(u32, Vec<u32>)>> {
     input.iter().enumerate().map(|(i, x)| {
         x.iter().enumerate().map(|(j, y)| {
             let mut neigbours: Vec<u32> = vec![];
@@ -76,8 +76,8 @@ fn as_neighbourhood(input: &Vec<Vec<u32>>) -> Vec<Vec<(u32, Vec<u32>)>> {
 }
 
 fn is_low_point(center: &(u32, Vec<u32>)) -> bool {
-    return center.1.iter().fold(true, |acc, curr| {
-        acc && curr > &center.0 // if curr is smaller, we do not have a low point; so our fold collapses to false
+    return center.1.iter().fold(true, |acc, &curr| {
+        acc && curr > center.0 // if curr is smaller, we do not have a low point; so our fold collapses to false
     });
 }
 
@@ -85,14 +85,14 @@ fn is_low_point(center: &(u32, Vec<u32>)) -> bool {
 struct Coord(usize, usize);
 
 
-fn basin_size(field: &Vec<Vec<(u32, Vec<u32>)>>, low_point_val: &(u32, Vec<u32>), low_point: Coord) -> u32 {
+fn basin_size(field: &[Vec<(u32, Vec<u32>)>], low_point_val: &(u32, Vec<u32>), low_point: Coord) -> u32 {
     let mut basin: HashSet<Coord> = HashSet::new();
     basin.insert(low_point);
     add_neighbours_to_basin(field, low_point_val, low_point, &mut basin, (field.len(), field[0].len()));
     basin.len() as u32
 }
 
-fn add_neighbours_to_basin(field: &Vec<Vec<(u32, Vec<u32>)>>, point_val: &(u32, Vec<u32>), point: Coord, basin: &mut HashSet<Coord>, field_size: (usize, usize)) {
+fn add_neighbours_to_basin(field: &[Vec<(u32, Vec<u32>)>], point_val: &(u32, Vec<u32>), point: Coord, basin: &mut HashSet<Coord>, field_size: (usize, usize)) {
     // we manually go over all neighbours
     let neighbors: Vec<Coord>;
     if point.0 == 0 {
@@ -128,12 +128,12 @@ fn add_neighbours_to_basin(field: &Vec<Vec<(u32, Vec<u32>)>>, point_val: &(u32, 
         // and if this is one higher than the current point val WRONG -> check if it is any higher than the previous instead
         if !basin.contains(x) && neighbour.0 != 9 && neighbour.0 > point_val.0 {
             basin.insert(Coord(x.0, x.1));
-            add_neighbours_to_basin(field, &neighbour, Coord(x.0, x.1), basin, field_size);
+            add_neighbours_to_basin(field, neighbour, Coord(x.0, x.1), basin, field_size);
         }
     })
 }
 
-fn calc_part1(inputs: &Vec<Vec<u32>>) -> u32 {
+fn calc_part1(inputs: &[Vec<u32>]) -> u32 {
     let neighbour_map = as_neighbourhood(inputs);
     neighbour_map.iter().fold(0, |acc, curr| {
         curr.iter().fold(0, |acc, curr| {
@@ -146,7 +146,7 @@ fn calc_part1(inputs: &Vec<Vec<u32>>) -> u32 {
     })
 }
 
-fn calc_part2(inputs: &Vec<Vec<u32>>) -> u32 {
+fn calc_part2(inputs: &[Vec<u32>]) -> u32 {
     let neighbour_map = as_neighbourhood(inputs);
     let mut basin_sizes = neighbour_map.iter().enumerate().fold(vec![], |mut acc, curr| {
         acc.append(&mut curr.1.iter().enumerate()
