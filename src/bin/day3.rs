@@ -41,7 +41,7 @@ fn sum_by_column(inputs: &[Vec<char>]) -> Vec<u32> {
               })
 }
 
-fn sum_column(inputs: &Vec<&Vec<char>>, i: usize) -> u32 {
+fn sum_column(inputs: &[&Vec<char>], i: usize) -> u32 {
     inputs.iter()
         .filter_map(|x| x[i].to_digit(2))
         .sum()
@@ -49,7 +49,7 @@ fn sum_column(inputs: &Vec<&Vec<char>>, i: usize) -> u32 {
 
 fn calc_part1(gamma: &[char]) -> isize {
     let gammastr: String = gamma.iter().collect();
-    let epsilonstr: String = gamma.into_iter().map(|x| if x.to_digit(2).unwrap() == 1 { '0' } else { '1' }).collect();
+    let epsilonstr: String = gamma.iter().map(|x| if x.to_digit(2).unwrap() == 1 { '0' } else { '1' }).collect();
 
     isize::from_str_radix(gammastr.as_str(), 2).unwrap() *
         isize::from_str_radix(epsilonstr.as_str(), 2).unwrap()
@@ -99,8 +99,8 @@ fn calc_co2_rating(inputs: &[Vec<char>]) -> &Vec<char> {
 
 fn part2_filter(inputs: &mut Vec<&Vec<char>>, column: usize, compare_char: char) {
     let mut to_remove: Vec<usize> = vec![];
-    for i in 0..inputs.len() {
-        if inputs[i][column] != compare_char {
+    for (i, item) in inputs.iter().enumerate() {
+        if item[column] != compare_char {
             to_remove.push(i);
         }
     }

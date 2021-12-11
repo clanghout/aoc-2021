@@ -21,17 +21,17 @@ fn parse_input(contents: &str) -> Vec<(Vec<&str>, Vec<&str>)> {
         .lines()
         .filter(|x| !x.is_empty())
         .map(|x| {
-            let mut map = x.split(" | ").map(|digit_line| digit_line.split(" ").collect());
+            let mut map = x.split(" | ").map(|digit_line| digit_line.split(' ').collect());
             (map.next().unwrap(), map.next().unwrap())
         }).collect()
 }
 
-fn calc_part1(inputs: &Vec<(Vec<&str>, Vec<&str>)>) -> usize {
+fn calc_part1(inputs: &[(Vec<&str>, Vec<&str>)]) -> usize {
     let allowed_lens = [2, 3, 4, 7];
     inputs.iter().fold(0, |acc, input| input.1.iter().filter(|x| allowed_lens.contains(&x.len())).count() + acc)
 }
 
-fn calc_part2(inputs: &Vec<(Vec<&str>, Vec<&str>)>) -> usize {
+fn calc_part2(inputs: &[(Vec<&str>, Vec<&str>)]) -> usize {
     inputs.iter().fold(0, |acc, input| decode_number(input) + acc)
 }
 
@@ -40,12 +40,12 @@ fn decode_number(input: &(Vec<&str>, Vec<&str>)) -> usize {
 
     let mut both = input.0.iter().map(|x| {
         let mut chars = x.chars().collect::<Vec<char>>();
-        chars.sort();
+        chars.sort_unstable();
         chars.iter().collect::<String>()
     }).collect::<Vec<String>>();
     let mut x2 = input.1.iter().map(|x| {
         let mut chars = x.chars().collect::<Vec<char>>();
-        chars.sort();
+        chars.sort_unstable();
         chars.iter().collect::<String>()
     }).collect::<Vec<String>>();
     both.append(&mut x2);
@@ -57,10 +57,10 @@ fn decode_number(input: &(Vec<&str>, Vec<&str>)) -> usize {
     translations.insert(seven, 7);
     translations.insert(four, 4);
     translations.insert(eight, 8);
-    let m_lt: Vec<char> = four.chars().filter(|x| !one.chars().collect::<Vec<char>>().contains(x)).collect();
+    let m_lt: Vec<char> = four.chars().filter(|&x| !one.chars().any(|a| a == x)).collect();
 
-    let mut chars_len5 = both.iter().filter(|x| x.len() == 5).map(|x| x.as_str()).collect::<HashSet<&str>>(); // 2, 5, 3
-    let mut chars_len6 = both.iter().filter(|x| x.len() == 6).map(|x| x.as_str()).collect::<HashSet<&str>>(); // 0, 6, 9
+    let chars_len5 = both.iter().filter(|x| x.len() == 5).map(|x| x.as_str()).collect::<HashSet<&str>>(); // 2, 5, 3
+    let chars_len6 = both.iter().filter(|x| x.len() == 6).map(|x| x.as_str()).collect::<HashSet<&str>>(); // 0, 6, 9
 
     let five = chars_len5.iter().filter(|x| {
         x.chars().filter(|y| {
@@ -68,29 +68,29 @@ fn decode_number(input: &(Vec<&str>, Vec<&str>)) -> usize {
         }).count() == 3
     }).collect::<Vec<&&str>>();
 
-    if five.len() > 0 {
+    if !five.is_empty() {
         translations.insert(*five[0], 5);
     }
     let three = chars_len5.iter().filter(|x| {
         x.chars().filter(|y| {
             !m_lt.contains(y)
         }).count() != 3 &&
-        x.chars().filter(|y| {
-            !seven.chars().collect::<Vec<char>>().contains(y)
+        x.chars().filter(|&y| {
+            !seven.chars().any(|x| x == y)
         }).count() == 2
     }).collect::<Vec<&&str>>();
-    if three.len() > 0 {
+    if !three.is_empty() {
         translations.insert(*three[0], 3);
     }
     let two = chars_len5.iter().filter(|x| {
-        x.chars().filter(|y| {
-            !m_lt.contains(y)
+        x.chars().filter(|&y| {
+            !m_lt.contains(&y)
         }).count() != 3 &&
-            x.chars().filter(|y| {
-                !seven.chars().collect::<Vec<char>>().contains(y)
+            x.chars().filter(|&y| {
+                !seven.chars().any(|x| x == y)
             }).count() == 3
     }).collect::<Vec<&&str>>();
-    if two.len() > 0 {
+    if !two.is_empty() {
         translations.insert(*two[0], 2);
     }
 
@@ -99,16 +99,16 @@ fn decode_number(input: &(Vec<&str>, Vec<&str>)) -> usize {
             !m_lt.contains(y)
         }).count() == 5
     }).collect::<Vec<&&str>>();
-    if zero.len() > 0 {
+    if !zero.is_empty() {
         translations.insert(*zero[0], 0);
     }
     let six = chars_len6.iter()
         .filter(|x| {
-            x.chars().filter(|y| {
-                !one.chars().collect::<Vec<char>>().contains(y)
+            x.chars().filter(|&y| {
+                !one.chars().any(|x| x == y)
             }).count() == 5
         }).collect::<Vec<&&str>>();
-    if six.len() > 0 {
+    if !six.is_empty() {
         translations.insert(*six[0], 6);
     }
     let nine = chars_len6.iter()
@@ -116,17 +116,17 @@ fn decode_number(input: &(Vec<&str>, Vec<&str>)) -> usize {
             x.chars().filter(|y| {
                 !m_lt.contains(y)
             }).count() != 5 &&
-            x.chars().filter(|y| {
-                !one.chars().collect::<Vec<char>>().contains(y)
+            x.chars().filter(|&y| {
+                !one.chars().any(|x| x == y)
             }).count() == 4
         }).collect::<Vec<&&str>>();
-    if nine.len() > 0 {
+    if !nine.is_empty() {
         translations.insert(*nine[0], 9);
     }
 
     let x1 = input.1.iter().map(|x| {
         let mut vec = x.chars().collect::<Vec<char>>();
-        vec.sort();
+        vec.sort_unstable();
         let x3 = vec.iter().collect::<String>();
         translations.get(x3.as_str()).unwrap().to_string()
     }).collect::<String>();

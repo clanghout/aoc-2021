@@ -104,7 +104,9 @@ fn calc_part2(inputs: &[Vec<u8>]) -> usize {
             }).fold(0, |acc, i| {
                 acc * 5 + i
             })
-        } else { 0 }
+        } else {
+            0
+        }
     }).filter(
         |&i| i > 0
     ).collect::<Vec<usize>>();

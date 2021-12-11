@@ -18,9 +18,9 @@ pub fn main() -> Result<(), Box<dyn std::error::Error>> {
 fn parse_input(contents: &str) -> Vec<u8> {
     contents
         .lines()
-        .filter(|x| !x.is_empty())
-        .next().unwrap()
-        .split(",")
+        .find(|x| !x.is_empty())
+        .unwrap()
+        .split(',')
         .map(|x| {
             x.parse().unwrap()
         }).collect()
@@ -28,9 +28,9 @@ fn parse_input(contents: &str) -> Vec<u8> {
 
 // returns amount of new fishes
 fn fish_cycle(fishes: &mut Vec<u8>) -> u32 {
-    fishes.into_iter().map(|x| {
-        if *x == 0 as u8 {
-            *x = 6 as u8;
+    fishes.iter_mut().map(|x| {
+        if *x == 0 {
+            *x = 6;
             1
         } else {
             *x -= 1;
@@ -39,13 +39,13 @@ fn fish_cycle(fishes: &mut Vec<u8>) -> u32 {
     }).sum()
 }
 
-fn calc_part1(inputs: &Vec<u8>) -> usize {
-    let mut fishes = inputs.clone();
+fn calc_part1(inputs: &[u8]) -> usize {
+    let mut fishes = Vec::from(inputs);
     (0..80).for_each(|_| {
         let new_fish = fish_cycle(&mut fishes);
         (0..new_fish).for_each(|_| fishes.push(8));
     });
-    fishes.iter().count()
+    fishes.len()
 }
 
 fn fish_cycle2(fishes: &mut Vec<u64>) {
@@ -61,7 +61,7 @@ fn fish_cycle2_alternative(fishes: &mut [u64], index: usize) {
 }
 
 fn calc_part2(inputs: &[u8]) -> u64 {
-    let mut fish_map = inputs.iter().fold([0 as u64; 9], |mut acc, curr| {
+    let mut fish_map = inputs.iter().fold([0; 9], |mut acc, curr| {
         acc[*curr as usize] += 1;
         acc
     });

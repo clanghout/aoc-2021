@@ -32,11 +32,11 @@ fn has_bingo(card: &BingoCard, matches: &[u32]) -> bool {
             {
                 let line_matches: Vec<bool> = line.line.iter().map(|x| matches.contains(x)).collect::<Vec<bool>>();
                 let res = acc.iter().zip(line_matches)
-                    .map(|(a, b)| if b { a + 1 } else { a + 0 }).collect();
+                    .map(|(a, b)| if b { a + 1 } else { *a }).collect();
                 res
             })
         .iter()
-        .fold(false, |acc, cur| acc || (cur + 0) == 5);
+        .any(|cur| *cur == 5);
     has_line_bingo || has_col_bingo
 }
 
@@ -47,31 +47,28 @@ fn line_is_bingo(matches: &[u32], line: &BingoCardLine) -> bool {
 // returns list of bingo numbers and list of bingo cards
 fn parse_input(contents: &str) -> (Vec<u32>, Vec<BingoCard>) {
     let mut lines = contents.lines();
-    let number_line: Vec<u32> = lines.next().unwrap().split(",").map(|x| x.parse::<u32>().unwrap()).collect();
+    let number_line: Vec<u32> = lines.next().unwrap().split(',').map(|x| x.parse::<u32>().unwrap()).collect();
     lines.next(); // skip first empty line
     let cards = lines
         .fold((0, vec!(BingoCard { lines: vec!() })),
-              |mut acc, curr| {
-                  if curr.is_empty() {
-                      acc.1.push(BingoCard { lines: vec!() });
-                      (acc.0 + 1, acc.1)
-                  } else {
-                      if !curr.is_empty() {
-                          // dbg!(curr);
-                          let bingo_line: BingoCardLine = BingoCardLine {
-                              line: curr
-                                  .split(" ")
-                                  .filter(|x| !x.is_empty())
-                                  .map(|x| x.parse::<u32>().unwrap())
-                                  .collect()
-                          };
-                          acc.1[acc.0].lines.push(bingo_line);
-                          (acc.0, acc.1)
-                      } else {
-                          acc
-                      }
-                  }
-              }).1;
+              |mut acc, curr| if curr.is_empty() {
+                  acc.1.push(BingoCard { lines: vec!() });
+                  (acc.0 + 1, acc.1)
+              } else if !curr.is_empty() {
+                  // dbg!(curr);
+                  let bingo_line: BingoCardLine = BingoCardLine {
+                      line: curr
+                          .split(' ')
+                          .filter(|x| !x.is_empty())
+                          .map(|x| x.parse::<u32>().unwrap())
+                          .collect()
+                  };
+                  acc.1[acc.0].lines.push(bingo_line);
+                  (acc.0, acc.1)
+              } else {
+                  acc
+              },
+        ).1;
     (number_line, cards)
 }
 
@@ -83,28 +80,27 @@ fn get_card_score(card: &BingoCard, numbers: &[u32]) -> u32 {
 }
 
 fn calc_part1(inputs: &(Vec<u32>, Vec<BingoCard>)) -> u32 {
-
     for i in 0..inputs.0.len() {
         let numbers = &inputs.0[0..i];
-        let cards: Vec<&BingoCard> = inputs.1.iter().filter(| card|  has_bingo(&card, &numbers)).collect();
-        if cards.len() > 0 {
-            return get_card_score(cards.first().unwrap(), &numbers) * numbers[i-1];
+        let cards: Vec<&BingoCard> = inputs.1.iter().filter(|card| has_bingo(card, numbers)).collect();
+        if !cards.is_empty() {
+            return get_card_score(cards.first().unwrap(), numbers) * numbers[i - 1];
         }
     }
     0
 }
-fn calc_part2(inputs: &(Vec<u32>, Vec<BingoCard>)) -> u32 {
 
+fn calc_part2(inputs: &(Vec<u32>, Vec<BingoCard>)) -> u32 {
     for i in 0..inputs.0.len() {
         let numbers = &inputs.0[0..i];
-        let cards: Vec<&BingoCard> = inputs.1.iter().filter(| card|  !has_bingo(&card, &numbers)).collect();
+        let cards: Vec<&BingoCard> = inputs.1.iter().filter(|card| !has_bingo(card, numbers)).collect();
         if cards.len() == 1 {
             let card1 = cards.first().unwrap();
             let mut j = i;
-            while !has_bingo(card1, &inputs.0[0..j]){
-                j+=1;
+            while !has_bingo(card1, &inputs.0[0..j]) {
+                j += 1;
             }
-            return get_card_score(card1, &inputs.0[0..j]) * &inputs.0[j-1];
+            return get_card_score(card1, &inputs.0[0..j]) * inputs.0[j - 1];
         }
     }
     0

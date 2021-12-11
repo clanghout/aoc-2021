@@ -31,43 +31,36 @@ fn as_neighbourhood(input: &[Vec<u32>]) -> Vec<Vec<(u32, Vec<u32>)>> {
         x.iter().enumerate().map(|(j, y)| {
             let mut neigbours: Vec<u32> = vec![];
             if i == 0 {
+                neigbours.push(input[i + 1][j]);
                 if j == 0 {
                     neigbours.push(input[i][j + 1]);
-                    neigbours.push(input[i + 1][j]);
                 } else if j == input[0].len() - 1 {
                     neigbours.push(input[i][j - 1]);
-                    neigbours.push(input[i + 1][j]);
                 } else {
                     neigbours.push(input[i][j + 1]);
                     neigbours.push(input[i][j - 1]);
-                    neigbours.push(input[i + 1][j]);
-                }
-            } else if i == input.len() - 1 {
-                if j == 0 {
-                    neigbours.push(input[i][j + 1]);
-                    neigbours.push(input[i - 1][j]);
-                } else if j == input[0].len() - 1 {
-                    neigbours.push(input[i][j - 1]);
-                    neigbours.push(input[i - 1][j]);
-                } else {
-                    neigbours.push(input[i][j + 1]);
-                    neigbours.push(input[i][j - 1]);
-                    neigbours.push(input[i - 1][j]);
                 }
             } else {
-                if j == 0 {
-                    neigbours.push(input[i][j + 1]);
-                    neigbours.push(input[i + 1][j]);
-                    neigbours.push(input[i - 1][j]);
-                } else if j == input[0].len() - 1 {
-                    neigbours.push(input[i][j - 1]);
-                    neigbours.push(input[i + 1][j]);
-                    neigbours.push(input[i - 1][j]);
+                neigbours.push(input[i - 1][j]);
+                if i == input.len() - 1 {
+                    if j == 0 {
+                        neigbours.push(input[i][j + 1]);
+                    } else if j == input[0].len() - 1 {
+                        neigbours.push(input[i][j - 1]);
+                    } else {
+                        neigbours.push(input[i][j + 1]);
+                        neigbours.push(input[i][j - 1]);
+                    }
                 } else {
-                    neigbours.push(input[i][j + 1]);
-                    neigbours.push(input[i][j - 1]);
                     neigbours.push(input[i + 1][j]);
-                    neigbours.push(input[i - 1][j]);
+                    if j == 0 {
+                        neigbours.push(input[i][j + 1]);
+                    } else if j == input[0].len() - 1 {
+                        neigbours.push(input[i][j - 1]);
+                    } else {
+                        neigbours.push(input[i][j + 1]);
+                        neigbours.push(input[i][j - 1]);
+                    }
                 }
             }
             (*y, neigbours)
@@ -76,9 +69,8 @@ fn as_neighbourhood(input: &[Vec<u32>]) -> Vec<Vec<(u32, Vec<u32>)>> {
 }
 
 fn is_low_point(center: &(u32, Vec<u32>)) -> bool {
-    return center.1.iter().fold(true, |acc, &curr| {
-        acc && curr > center.0 // if curr is smaller, we do not have a low point; so our fold collapses to false
-    });
+    // if curr is smaller, we do not have a low point; so our fold collapses to false
+    center.1.iter().all(|&curr| curr > center.0)
 }
 
 #[derive(Debug, Eq, Hash, PartialEq, Copy, Clone)]
@@ -111,15 +103,14 @@ fn add_neighbours_to_basin(field: &[Vec<(u32, Vec<u32>)>], point_val: &(u32, Vec
         } else {
             neighbors = vec![Coord(point.0 - 1, point.1), Coord(point.0, point.1 + 1), Coord(point.0, point.1 - 1)];
         }
-    } else {
-        if point.1 == 0 { // on left row
-            neighbors = vec![Coord(point.0 + 1, point.1), Coord(point.0, point.1 + 1), Coord(point.0 - 1, point.1)];
-        } else if point.1 == field_size.1 - 1 { // on right row
-            neighbors = vec![Coord(point.0 + 1, point.1), Coord(point.0, point.1 - 1), Coord(point.0 - 1, point.1)];
-        } else {// somewhere in the middle
-            neighbors = vec![Coord(point.0 + 1, point.1), Coord(point.0 - 1, point.1), Coord(point.0, point.1 + 1), Coord(point.0, point.1 - 1)];
-        }
+    } else if point.1 == 0 { // on left row
+        neighbors = vec![Coord(point.0 + 1, point.1), Coord(point.0, point.1 + 1), Coord(point.0 - 1, point.1)];
+    } else if point.1 == field_size.1 - 1 { // on right row
+        neighbors = vec![Coord(point.0 + 1, point.1), Coord(point.0, point.1 - 1), Coord(point.0 - 1, point.1)];
+    } else {// somewhere in the middle
+        neighbors = vec![Coord(point.0 + 1, point.1), Coord(point.0 - 1, point.1), Coord(point.0, point.1 + 1), Coord(point.0, point.1 - 1)];
     }
+
     // check all neighbours if they are part of this basin
     neighbors.iter().for_each(|x| {
         let neighbour = &field[x.0][x.1];
@@ -159,7 +150,7 @@ fn calc_part2(inputs: &[Vec<u32>]) -> u32 {
             }));
         acc
     });
-    basin_sizes.sort();
+    basin_sizes.sort_unstable();
     // take the largest 3 and multiply them together
     basin_sizes[basin_sizes.len() - 3..].iter().product()
 }

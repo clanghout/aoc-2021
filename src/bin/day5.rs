@@ -25,7 +25,7 @@ fn parse_input(contents: &str) -> Vec<Vec<Coord>> {
         .filter(|x| !x.is_empty())
         .map(|x|
             x.split(" -> ").map(|y| {
-                let mut split = y.split(",");
+                let mut split = y.split(',');
                 Coord(split.next().unwrap().parse().unwrap(), split.next().unwrap().parse().unwrap())
             }).collect()
         ).collect()
@@ -70,9 +70,9 @@ fn is_left_up(c1: &Coord, c2: &Coord) -> bool {
         c1.1 > c2.1 && c1.0 > c2.0
 }
 
-fn calc_part1(inputs: &Vec<Vec<Coord>>) -> usize {
+fn calc_part1(inputs: &[Vec<Coord>]) -> usize {
     inputs
-        .into_iter()
+        .iter()
         .filter(|x| is_straight_line(x))
         .flat_map(|coord| interpolate_line(&coord[0], &coord[1]))
         .fold(HashMap::new(), |mut map: HashMap<Coord, u8>, coord| {
@@ -84,13 +84,13 @@ fn calc_part1(inputs: &Vec<Vec<Coord>>) -> usize {
         .count()
 }
 
-fn is_straight_line(line: &Vec<Coord>) -> bool {
+fn is_straight_line(line: &[Coord]) -> bool {
     let c1 = &line[0];
     let c2 = &line[1];
     is_x_line(c1, c2) || is_y_line(c1, c2)
 }
 
-fn is_diag_line(line: &Vec<Coord>) -> bool {
+fn is_diag_line(line: &[Coord]) -> bool {
     let c1 = &line[0];
     let c2 = &line[1];
     let min_x = c1.0.min(c2.0);
@@ -100,9 +100,9 @@ fn is_diag_line(line: &Vec<Coord>) -> bool {
     max_x - min_x == max_y - min_y // check if the diff on x axis is same as y axis to check if they are on a diagonal
 }
 
-fn calc_part2(inputs: &Vec<Vec<Coord>>) -> usize {
+fn calc_part2(inputs: &[Vec<Coord>]) -> usize {
     inputs
-        .into_iter()
+        .iter()
         .filter(|x| is_straight_line(x) || is_diag_line(x))
         .flat_map(|coord| interpolate_line(&coord[0], &coord[1]))
         .fold(HashMap::new(), |mut map: HashMap<Coord, u8>, coord| {

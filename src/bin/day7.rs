@@ -6,7 +6,7 @@ pub fn main() -> Result<(), Box<dyn std::error::Error>> {
     // highest crab pos
     let x = parsed.iter().max().unwrap() + 1;
     // convert crab positions to array where index is the crab location and value is the amount of crabs there
-    let crabs = parsed.iter().fold(vec![0 as usize; x], |mut acc, curr| {
+    let crabs = parsed.iter().fold(vec![0; x], |mut acc, curr| {
         acc[*curr] += 1;
         acc
     });
@@ -27,7 +27,7 @@ fn parse_input(contents: &str) -> Vec<usize> {
         .lines()
         .find(|x| !x.is_empty())
         .unwrap()
-        .split(",")
+        .split(',')
         .map(|x| {
             x.parse().unwrap()
         }).collect()
