@@ -36,91 +36,63 @@ fn parse_input(contents: &[u8]) -> Vec<Vec<u8>> {
 fn calc_part1(inputs: &[Vec<u8>]) -> usize {
     inputs.iter().map(|line| {
         let mut stack = Vec::new();
-        line.iter().filter_map(|c| {
-            // push opening char to stack
+        line.iter().find_map(|c| {
             match c {
                 b'(' | b'[' | b'{' | b'<' => {
                     stack.push(*c);
                     None
                 }
-                b')' => {
-                    let i = stack.pop().unwrap();
-                    if i != b'(' {
-                        Some(3)
-                    } else {
-                        None
-                    }
+                // if the last value on the stack doesn't match the current value, we have an invalid line and can return the score
+                _ => if stack.pop().unwrap() != find_matching_opening_bracket(c) {
+                    Some(to_score(c))
+                } else {
+                    None
                 }
-                b']' => {
-                    if stack.pop().unwrap() != b'[' {
-                        Some(57)
-                    } else {
-                        None
-                    }
-                }
-                b'}' => {
-                    if stack.pop().unwrap() != b'{' {
-                        Some(1197)
-                    } else {
-                        None
-                    }
-                }
-                b'>' => {
-                    if stack.pop().unwrap() != b'<' {
-                        Some(25137)
-                    } else {
-                        None
-                    }
-                }
-                _ => unreachable!()
             }
-        }).next().unwrap_or(0usize)
+        }).unwrap_or(0usize)
     }).sum()
 }
 
+fn find_matching_opening_bracket(c: &u8) -> u8 {
+    match c {
+        b')' => b'(',
+        b']' => b'[',
+        b'}' => b'{',
+        b'>' => b'<',
+        _ => panic!("unexpected closing char {}", *c as char)
+    }
+}
+
+fn to_score(char: &u8) -> usize {
+    match char {
+        b')' => 3,
+        b']' => 57,
+        b'}' => 1197,
+        b'>' => 25137,
+        _ => unreachable!()
+    }
+}
+
 fn calc_part2(inputs: &[Vec<u8>]) -> usize {
-    let mut line_totals = inputs.iter().enumerate().map(|(i, line)| {
+    let mut line_totals = inputs.iter().map(|line| {
         let mut stack = Vec::new();
         let is_valid_line = line.iter().all(|c| {
-            // push opening char to stack
+            // push opening char to stack; closing chars are popped and checked against opening chars
+            // if they do not match, the line is invalid
             match c {
                 b'(' | b'[' | b'{' | b'<' => {
                     stack.push(*c);
                     true
                 }
-                b')' => {
-                    let i = stack.pop().unwrap();
-                    if i != b'(' {
-                        false
-                    } else {
-                        true
-                    }
-                }
-                b']' => {
-                    if stack.pop().unwrap() != b'[' {
-                        false
-                    } else {
-                        true
-                    }
-                }
-                b'}' => {
-                    if stack.pop().unwrap() != b'{' {
-                        false
-                    } else {
-                        true
-                    }
-                }
-                b'>' => {
-                    if stack.pop().unwrap() != b'<' {
-                        false
-                    } else {
-                        true
-                    }
-                }
+                b')' => stack.pop().unwrap() == b'(',
+                b']' => stack.pop().unwrap() == b'[',
+                b'}' => stack.pop().unwrap() == b'{',
+                b'>' => stack.pop().unwrap() == b'<',
                 _ => unreachable!()
             }
         });
         if is_valid_line {
+            // complete the rest of the line with the opening brackets that are left on the stack
             stack.iter().rev().map(|c| {
                 match c {
                     b'(' => 1,
@@ -136,9 +108,9 @@ fn calc_part2(inputs: &[Vec<u8>]) -> usize {
     }).filter(
         |&i| i > 0
     ).collect::<Vec<usize>>();
-    // sort by value
+
+    // find the answer by sorting the line totals and taking the middle element
     line_totals.sort_unstable();
-    // find middle value
     let middle = line_totals.len() / 2;
     line_totals[middle]
 }
