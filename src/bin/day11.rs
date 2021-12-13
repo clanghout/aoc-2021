@@ -19,9 +19,9 @@ fn parse_input(contents: &[u8]) -> Vec<Vec<u8>> {
 }
 
 // cannot use slice due to mutablity
-fn calc_part1(inputs: &Vec<Vec<u8>>) -> usize {
-    let mut squid_map = inputs.clone();
-    (0..100).map(|_cycle| {
+fn calc_part1(inputs: &[Vec<u8>]) -> usize {
+    let mut squid_map = inputs.to_owned();
+    (0usize..100).map(|_cycle| {
         // add 1 to all values in inputs
         new_cycle(&mut squid_map);
         // while we have squids that have a value over 9
@@ -51,8 +51,8 @@ fn calc_part1(inputs: &Vec<Vec<u8>>) -> usize {
             }
         };
         // count all the glowsquids with value 0. That is the amount of glowsquids that triggered this round.
-        squid_map.iter().map(|line| line.iter().filter(|&&x| x == b'0').count()).sum()
-    }).sum()
+        squid_map.iter().map(|line| line.iter().filter(|&&x| x == b'0').count()).sum::<usize>()
+    }).sum::<usize>()
 }
 
 fn new_cycle(squid_map: &mut [Vec<u8>]) {
@@ -63,8 +63,8 @@ fn new_cycle(squid_map: &mut [Vec<u8>]) {
     }
 }
 
-fn calc_part2(inputs: &Vec<Vec<u8>>) -> usize {
-    let mut squid_map = inputs.clone();
+fn calc_part2(inputs: &[Vec<u8>]) -> usize {
+    let mut squid_map = inputs.to_owned();
     let mut completed = false;
     let mut cycle = 0;
     while !completed {

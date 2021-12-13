@@ -133,13 +133,3 @@ fn test() {
     // dbg!(vec);
     assert_eq!(calc_part1(&vec), 4512)
 }
-
-
-#[test]
-fn test2() {
-    let test = r#"
-"#;
-
-    let vec = parse_input(test);
-    // assert_eq!(calc_part2(&vec), 00)
-}
